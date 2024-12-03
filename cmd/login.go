@@ -92,11 +92,32 @@ func login() {
 	token := dataMap["token"].(string)
 
 	// 保存到数据库
-	err = utils.SaveUser(account, token, "", "")
+	err = utils.SaveUser(
+		account,
+		password,
+		token,
+		"", "", // 经纬度信息留空
+		getStringFromResult(dataMap, "bind_phone"),
+		getStringFromResult(dataMap, "user_number"),
+		getStringFromResult(dataMap, "user_name"),
+		dataMap["school_id"].(float64),
+		getStringFromResult(dataMap, "sex"),
+		getStringFromResult(dataMap, "class_name"),
+		getStringFromResult(dataMap, "entrance_year"),
+		getStringFromResult(dataMap, "graduation_year"),
+	)
 	if err != nil {
 		fmt.Println("保存用户信息失败:", err)
 		return
 	}
-
 	fmt.Println("登录成功！")
+}
+
+func getStringFromResult(dataMap map[string]interface{}, key string) string {
+	if value, ok := dataMap[key]; ok {
+		if str, ok := value.(string); ok {
+			return str
+		}
+	}
+	return "" // 如果字段不存在或类型不匹配，返回空字符串
 }
