@@ -20,11 +20,12 @@ import (
 )
 
 var (
-	address   string
-	latitude  string
-	longitude string
-	remark    string
-	comment   string
+	address      string
+	address_name string
+	latitude     string
+	longitude    string
+	remark       string
+	comment      string
 )
 
 var SignCmd = &cobra.Command{
@@ -37,7 +38,8 @@ var SignCmd = &cobra.Command{
 
 func init() {
 	SignCmd.Flags().StringVarP(&account, "account", "a", "", "账号")
-	SignCmd.Flags().StringVarP(&address, "address", "", "", "地址")
+	SignCmd.Flags().StringVarP(&address, "address", "", "", "地址(具体名称_小字部分)")
+	SignCmd.Flags().StringVarP(&address_name, "address_name", "", "", "地址名称")
 	SignCmd.Flags().StringVarP(&latitude, "latitude", "", "", "纬度")
 	SignCmd.Flags().StringVarP(&longitude, "longitude", "", "", "经度")
 	SignCmd.Flags().StringVarP(&remark, "remark", "", "0", "备注")
@@ -88,7 +90,7 @@ func signIn() {
 	data.Set("longitude", encryptedLongitude)
 	data.Set("remark", remark)
 	data.Set("comment", comment)
-	data.Set("address_name", "")
+	data.Set("address_name", address_name)
 	data.Set("change_sign_resource", "0")
 
 	req, err := http.NewRequest("POST", apiURL, strings.NewReader(data.Encode()))
