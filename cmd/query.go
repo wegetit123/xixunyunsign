@@ -29,6 +29,11 @@ func querySignIn() {
 		fmt.Println("未找到该账号的 token，请先登录。")
 		return
 	}
+	userData, err := utils.GetAdditionalUserData(account)
+	if err != nil {
+		fmt.Println("获取用户额外信息失败:", err)
+		return
+	}
 
 	apiURL := "https://api.xixunyun.com/signin40/homepage"
 
@@ -44,9 +49,9 @@ func querySignIn() {
 	query.Add("from", "app")
 	query.Add("version", "5.1.3")
 	query.Add("platform", "android")
-	query.Add("entrance_year", "0")
-	query.Add("graduate_year", "0")
-	query.Add("school_id", "7")
+	query.Add("entrance_year", userData["entrance_year"])
+	query.Add("graduate_year", userData["graduation_year"])
+	query.Add("school_id", userData["school_id"])
 	req.URL.RawQuery = query.Encode()
 
 	req.Header.Set("User-Agent", "okhttp/3.8.0")
@@ -63,22 +68,37 @@ func querySignIn() {
 
 	body, _ := ioutil.ReadAll(resp.Body)
 	var result map[string]interface{}
-	json.Unmarshal(body, &result)
+	if err := json.Unmarshal(body, &result); err != nil {
+		fmt.Println("解析响应失败:", err)
+		return
+	}
 
-	if result["code"].(float64) != 20000 {
-		fmt.Println("查询失败:", result["message"])
+	code, ok := result["code"].(float64)
+	if !ok || code != 20000 {
+		message, _ := result["message"].(string)
+		fmt.Printf("查询失败: %s\n", message)
 		return
 	}
 
 	fmt.Println("查询成功！")
 
-	dataMap := result["data"].(map[string]interface{})
-	signResourcesInfo := dataMap["sign_resources_info"].(map[string]interface{})
+	data, ok := result["data"].(map[string]interface{})
+	if !ok {
+		fmt.Println("解析数据失败：无效的响应结构")
+		return
+	}
+
+	signResourcesInfo, ok := data["sign_resources_info"].(map[string]interface{})
+	if !ok {
+		fmt.Println("解析签到资源信息失败：无效的响应结构")
+		return
+	}
+
 	midLatitude := fmt.Sprintf("%v", signResourcesInfo["mid_sign_latitude"])
 	midLongitude := fmt.Sprintf("%v", signResourcesInfo["mid_sign_longitude"])
 
 	// 更新数据库中的经纬度信息
-	err = utils.SaveUser(account, token, midLatitude, midLongitude)
+	err = utils.UpdateCoordinates(account, midLatitude, midLongitude)
 	if err != nil {
 		fmt.Println("保存经纬度信息失败:", err)
 		return
