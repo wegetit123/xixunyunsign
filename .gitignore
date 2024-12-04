@@ -1,0 +1,4 @@
+# 添加以下内容到 .gitignore
+.idea/
+config.db
+xixuanyunsign.exe
