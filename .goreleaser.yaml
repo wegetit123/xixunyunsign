@@ -1,17 +1,42 @@
-project_name: xixuanyunsign
-
 builds:
-  - id: windows_386
+  - binary: websocks-local
+    main: ./cmd/websocks-local/main.go
     goos:
       - windows
+      - darwin
+      - linux
+      - freebsd
     goarch:
+      - amd64
       - 386
-    main: ./main.go  # 你的入口文件路径
-    env:
-      - CGO_ENABLED=1
-      - CGO_LDFLAGS=-L/c/msys64/mingw32/lib  # 设置MinGW库路径
-      - CGO_CFLAGS=-I/c/msys64/mingw32/include  # 设置MinGW头文件路径
-    ldflags: "-s -w -extldflags '-static'"  # 使编译静态化
-    goarm: [7]
-
-
+      - arm
+      - arm64
+    goarm:
+      - 6
+      - 7
+  - binary: websocks-server
+    main: ./cmd/websocks-server/main.go
+    goos:
+      - windows
+      - darwin
+      - linux
+      - freebsd
+    goarch:
+      - amd64
+      - 386
+      - arm
+      - arm64
+    goarm:
+      - 6
+      - 7
+archive:
+  name_template: '{{ .ProjectName }}_{{ .Os }}_{{ .Arch }}{{ if .Arm }}v{{ .Arm }}{{ end }}'
+  replacements:
+    darwin: Darwin
+    linux: Linux
+    windows: Windows
+    386: i386
+    amd64: x86_64
+  format_overrides:
+    - goos: windows
+      format: zip
