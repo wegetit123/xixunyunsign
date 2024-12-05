@@ -75,7 +75,7 @@ builds:
     ldflags:
       - -s -w -X main.version={{.Version}}
 
-  # Linux armhf (已包含)
+  # Linux armhf
   - id: linux-armhf
     main: ./
     binary: xixunyunsign
@@ -93,6 +93,42 @@ builds:
       - CGO_LDFLAGS=--sysroot=/sysroot/linux/armhf
       - PKG_CONFIG_SYSROOT_DIR=/sysroot/linux/armhf
       - PKG_CONFIG_PATH=/sysroot/linux/armhf/opt/vc/lib/pkgconfig:/sysroot/linux/armhf/usr/lib/arm-linux-gnueabihf/pkgconfig:/sysroot/linux/armhf/usr/lib/pkgconfig:/sysroot/linux/armhf/usr/local/lib/pkgconfig
+    flags:
+      - -mod=readonly
+    ldflags:
+      - -s -w -X main.version={{.Version}}
+
+  # Linux armv5
+  - id: linux-armv5
+    main: ./
+    binary: xixunyunsign
+    goos:
+      - linux
+    goarch:
+      - arm
+    goarm:
+      - 5
+    env:
+      - CGO_ENABLED=1
+      - GOARM=5
+    flags:
+      - -mod=readonly
+    ldflags:
+      - -s -w -X main.version={{.Version}}
+
+  # Linux armv5 静态编译
+  - id: linux-armv5-static
+    main: ./
+    binary: xixunyunsign
+    goos:
+      - linux
+    goarch:
+      - arm
+    goarm:
+      - 5
+    env:
+      - CGO_ENABLED=1
+      - GOARM=5
     flags:
       - -mod=readonly
     ldflags:
@@ -117,20 +153,52 @@ builds:
     ldflags:
       - -s -w -X main.version={{.Version}}
 
-  # Windows arm64
-  - id: windows-arm64
+#  # Windows arm64
+#  - id: windows-arm64
+#    main: ./
+#    binary: xixunyunsign.exe
+#    goos:
+#      - windows
+#    goarch:
+#      - arm64
+#    env:
+#      - CGO_ENABLED=1
+#      - CC=aarch64-w64-mingw32-gcc
+#      - CXX=aarch64-w64-mingw32-g++
+#      - PKG_CONFIG_SYSROOT_DIR=/sysroot/windows/arm64
+#      - PKG_CONFIG_PATH=/sysroot/windows/arm64/usr/lib/pkgconfig:/sysroot/windows/arm64/usr/local/lib/pkgconfig
+#    flags:
+#      - -mod=readonly
+#    ldflags:
+#      - -s -w -X main.version={{.Version}}
+
+  # 静态编译的 Linux armhf
+  - id: linux-armhf-static
     main: ./
-    binary: xixunyunsign.exe
+    binary: xixunyunsign
     goos:
-      - windows
+      - linux
+    goarch:
+      - arm
+    goarm:
+      - 7
+    env:
+      - CGO_ENABLED=1
+    flags:
+      - -mod=readonly
+    ldflags:
+      - -s -w -X main.version={{.Version}}
+
+  # 静态编译的 Linux arm64
+  - id: linux-arm64-static
+    main: ./
+    binary: xixunyunsign
+    goos:
+      - linux
     goarch:
       - arm64
     env:
       - CGO_ENABLED=1
-      - CC=aarch64-w64-mingw32-gcc
-      - CXX=aarch64-w64-mingw32-g++
-      - PKG_CONFIG_SYSROOT_DIR=/sysroot/windows/arm64
-      - PKG_CONFIG_PATH=/sysroot/windows/arm64/usr/lib/pkgconfig:/sysroot/windows/arm64/usr/local/lib/pkgconfig
     flags:
       - -mod=readonly
     ldflags:
@@ -144,6 +212,10 @@ archives:
       - linux-amd64
       - linux-arm64
       - linux-armhf
+      - linux-armv5
+      - linux-armhf-static
+      - linux-arm64-static
+      - linux-armv5-static
       - windows-amd64
       - windows-arm64
     name_template: "{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
