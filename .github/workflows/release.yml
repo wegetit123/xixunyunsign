@@ -11,14 +11,11 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v3
 
-      # 使用 goreleaser 官方 Action
-      # 使用 docker 模式以及 goreleaser-cross 镜像进行跨平台编译
+      # 使用 GoReleaser 官方 Action
       - name: Run Goreleaser
         uses: goreleaser/goreleaser-action@v4
         with:
-          version: latest
-          mode: docker
-          image: goreleaser/goreleaser-cross:latest
-          args: release --clean --rm-dist
+          version: latest # 安装最新版本的 GoReleaser
+          args: release --clean # 移除无效的 --rm-dist 参数
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
