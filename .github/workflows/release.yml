@@ -19,13 +19,20 @@ jobs:
         with:
           go-version: '1.22'
 
-      # 3. 安装依赖，包括交叉编译器
+      # 3. 安装依赖，包括交叉编译器和动态库
       - name: Install Dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install -y build-essential gcc-aarch64-linux-gnu gcc-arm-linux-gnueabihf gcc-arm-linux-gnueabi
+          sudo apt-get install -y build-essential gcc-aarch64-linux-gnu gcc-arm-linux-gnueabihf gcc-arm-linux-gnueabi libssl-dev libcurl4-openssl-dev pkg-config
 
-      # 4. 列出所有 ARM GCC 编译器以进行诊断
+      # 4. 设置动态库路径，确保 ARM64 和 ARMv7 架构的库可以找到
+      - name: Set LD_LIBRARY_PATH
+        run: |
+          export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/opt/libs:/usr/lib/aarch64-linux-gnu:/usr/lib/arm-linux-gnueabihf
+          echo "LD_LIBRARY_PATH set to $LD_LIBRARY_PATH"
+        shell: bash
+
+      # 5. 列出所有 ARM GCC 编译器以进行诊断
       - name: List ARM GCC Compilers
         run: |
           echo "Listing all arm-linux-gnueabihf-gcc* and arm-linux-gnueabi-gcc* in /usr/bin:"
@@ -35,21 +42,22 @@ jobs:
           file /usr/bin/arm-linux-gnueabihf-gcc*
           file /usr/bin/arm-linux-gnueabi-gcc*
 
-      # 5. 验证 ARMv7 和 ARMv5 编译器是否可用
+      # 6. 验证 ARMv7 和 ARMv5 编译器是否可用
       - name: Verify Cross Compilers
         run: |
           which arm-linux-gnueabihf-gcc arm-linux-gnueabi-gcc
           arm-linux-gnueabihf-gcc --version
           arm-linux-gnueabi-gcc --version
 
-      # 6. 验证 ARMv5 编译器是否支持 -marm 选项
-      - name: Verify ARMv5 Compiler Options
+      # 7. 设置 GoReleaser 环境变量并启用 cgo
+      - name: Set CGO Environment
         run: |
-          arm-linux-gnueabi-gcc -Q --help=target | grep "marm" || echo "-marm not supported"
-
-      # 7. 列出 Git 标签以确保 GoReleaser 能正确获取标签信息
-      - name: List Git Tags
-        run: git tag
+          export CGO_ENABLED=1
+          export GOARCH=arm64
+          export GOOS=linux
+          export CC=aarch64-linux-gnu-gcc  # ARM64 编译器
+          export CXX=aarch64-linux-gnu-g++ # ARM64 C++ 编译器
+          echo "CGO_ENABLED=$CGO_ENABLED, GOARCH=$GOARCH, GOOS=$GOOS, CC=$CC"
 
       # 8. 运行 GoReleaser
       - name: Run GoReleaser
@@ -62,3 +70,14 @@ jobs:
           # 设置特定架构的 C 编译器
           CC_LINUX_ARM_V7: arm-linux-gnueabihf-gcc
           CC_LINUX_ARM_V5: arm-linux-gnueabi-gcc
+          CC_LINUX_ARM64: aarch64-linux-gnu-gcc
+          LD_LIBRARY_PATH: /opt/libs:/usr/lib/aarch64-linux-gnu:/usr/lib/arm-linux-gnueabihf # 确保 GoReleaser 可以找到动态库路径
+
+      # 9. 运行后验证 ARMv7 和 ARM64 动态库依赖是否正确加载
+      - name: Check ARMv7 Dynamic Dependencies
+        run: |
+          ldd ./xixunyunsign_armv7 || echo "No ARMv7 dynamic dependencies found"
+
+      - name: Check ARM64 Dynamic Dependencies
+        run: |
+          ldd ./xixunyunsign_arm64 || echo "No ARM64 dynamic dependencies found"
