@@ -9,6 +9,12 @@ builds:
       - linux
     goarch:
       - amd64
+    env:
+      - CGO_ENABLED=1
+      - CC=x86_64-linux-gnu-gcc
+      - CXX=x86_64-linux-gnu-g++
+      - PKG_CONFIG_SYSROOT_DIR=/sysroot/linux/amd64
+      - PKG_CONFIG_PATH=/sysroot/linux/amd64/usr/lib/pkgconfig:/sysroot/linux/amd64/usr/local/lib/pkgconfig
     flags:
       - -mod=readonly
     ldflags:
@@ -22,12 +28,18 @@ builds:
       - linux
     goarch:
       - arm64
+    env:
+      - CGO_ENABLED=1
+      - CC=aarch64-linux-gnu-gcc
+      - CXX=aarch64-linux-gnu-g++
+      - PKG_CONFIG_SYSROOT_DIR=/sysroot/linux/arm64
+      - PKG_CONFIG_PATH=/sysroot/linux/arm64/usr/lib/pkgconfig:/sysroot/linux/arm64/usr/local/lib/pkgconfig
     flags:
       - -mod=readonly
     ldflags:
       - -s -w -X main.version={{.Version}}
 
-  # Linux armhf
+  # Linux armhf (armv7)
   - id: linux-armhf-v1
     main: ./
     binary: xixunyunsign
@@ -37,6 +49,14 @@ builds:
       - arm
     goarm:
       - 7
+    env:
+      - CGO_ENABLED=1
+      - CC=arm-linux-gnueabihf-gcc
+      - CXX=arm-linux-gnueabihf-g++
+      - CGO_CFLAGS=--sysroot=/sysroot/linux/armhf
+      - CGO_LDFLAGS=--sysroot=/sysroot/linux/armhf
+      - PKG_CONFIG_SYSROOT_DIR=/sysroot/linux/armhf
+      - PKG_CONFIG_PATH=/sysroot/linux/armhf/opt/vc/lib/pkgconfig:/sysroot/linux/armhf/usr/lib/arm-linux-gnueabihf/pkgconfig:/sysroot/linux/armhf/usr/lib/pkgconfig:/sysroot/linux/armhf/usr/local/lib/pkgconfig
     flags:
       - -mod=readonly
     ldflags:
@@ -52,12 +72,19 @@ builds:
       - arm
     goarm:
       - 5
+    env:
+      - CGO_ENABLED=1
+      - GOARM=5
+      - CC=arm-linux-gnueabi-gcc
+      - CXX=arm-linux-gnueabi-g++
+      - PKG_CONFIG_SYSROOT_DIR=/sysroot/linux/armv5
+      - PKG_CONFIG_PATH=/sysroot/linux/armv5/usr/lib/pkgconfig:/sysroot/linux/armv5/usr/local/lib/pkgconfig
     flags:
       - -mod=readonly
     ldflags:
       - -s -w -X main.version={{.Version}}
 
-  # Linux armv5 Static
+  # Linux armv5 静态编译
   - id: linux-armv5-static-v1
     main: ./
     binary: xixunyunsign
@@ -67,47 +94,71 @@ builds:
       - arm
     goarm:
       - 5
+    env:
+      - CGO_ENABLED=1
+      - GOARM=5
+      - CC=arm-linux-gnueabi-gcc
+      - CXX=arm-linux-gnueabi-g++
+      - PKG_CONFIG_SYSROOT_DIR=/sysroot/linux/armv5
+      - PKG_CONFIG_PATH=/sysroot/linux/armv5/usr/lib/pkgconfig:/sysroot/linux/armv5/usr/local/lib/pkgconfig
     flags:
       - -mod=readonly
     ldflags:
       - -s -w -X main.version={{.Version}}
 
 archives:
+  # Linux amd64
   - id: linux-amd64-archive-v1
     builds:
       - linux-amd64-v1
     name_template: "xixunyunsign_{{ .Version }}_linux_amd64.zip"
     format: zip
+    wrap_in_directory: true
 
+  # Linux arm64
   - id: linux-arm64-archive-v1
     builds:
       - linux-arm64-v1
     name_template: "xixunyunsign_{{ .Version }}_linux_arm64.zip"
     format: zip
+    wrap_in_directory: true
 
+  # Linux armhf (armv7)
   - id: linux-armhf-archive-v1
     builds:
       - linux-armhf-v1
     name_template: "xixunyunsign_{{ .Version }}_linux_armhf.zip"
     format: zip
+    wrap_in_directory: true
 
+  # Linux armv5
   - id: linux-armv5-archive-v1
     builds:
       - linux-armv5-v1
     name_template: "xixunyunsign_{{ .Version }}_linux_armv5.zip"
     format: zip
+    wrap_in_directory: true
 
+  # Linux armv5 静态编译
   - id: linux-armv5-static-archive-v1
     builds:
       - linux-armv5-static-v1
     name_template: "xixunyunsign_{{ .Version }}_linux_armv5_static.zip"
     format: zip
+    wrap_in_directory: true
 
 checksum:
   name_template: 'checksums.txt'
 
 snapshot:
   name_template: "{{ .Tag }}"
+
+changelog:
+  sort: asc
+  filters:
+    exclude:
+      - '^docs:'
+      - '^test:'
 
 release:
   github:
