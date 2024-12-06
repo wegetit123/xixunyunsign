@@ -14,6 +14,7 @@ builds:
       - CXX=x86_64-linux-gnu-g++
       - PKG_CONFIG_SYSROOT_DIR=/sysroot/linux/amd64
       - PKG_CONFIG_PATH=/sysroot/linux/amd64/usr/lib/pkgconfig:/sysroot/linux/amd64/usr/local/lib/pkgconfig
+      - GOPATH=${GOPATH}
     flags:
       - -mod=readonly
     ldflags:
@@ -33,6 +34,7 @@ builds:
       - CXX=aarch64-linux-gnu-g++
       - PKG_CONFIG_SYSROOT_DIR=/sysroot/linux/arm64
       - PKG_CONFIG_PATH=/sysroot/linux/arm64/usr/lib/pkgconfig:/sysroot/linux/arm64/usr/local/lib/pkgconfig
+      - GOPATH=${GOPATH}
     flags:
       - -mod=readonly
     ldflags:
@@ -56,6 +58,7 @@ builds:
       - CGO_LDFLAGS=--sysroot=/sysroot/linux/armhf
       - PKG_CONFIG_SYSROOT_DIR=/sysroot/linux/armhf
       - PKG_CONFIG_PATH=/sysroot/linux/armhf/opt/vc/lib/pkgconfig:/sysroot/linux/armhf/usr/lib/arm-linux-gnueabihf/pkgconfig:/sysroot/linux/armhf/usr/lib/pkgconfig:/sysroot/linux/armhf/usr/local/lib/pkgconfig
+      - GOPATH=${GOPATH}
     flags:
       - -mod=readonly
     ldflags:
@@ -76,6 +79,7 @@ builds:
       - GOARM=5
       - CC=arm-linux-gnueabi-gcc # 使用适合 ARMv5 的 GCC 编译器
       - CXX=arm-linux-gnueabi-g++ # 使用适合 ARMv5 的 C++ 编译器
+      - GOPATH=${GOPATH}
     flags:
       - -mod=readonly
     ldflags:
@@ -96,11 +100,11 @@ builds:
       - GOARM=5
       - CC=arm-linux-gnueabi-gcc # 使用适合 ARMv5 的 GCC 编译器
       - CXX=arm-linux-gnueabi-g++ # 使用适合 ARMv5 的 C++ 编译器
+      - GOPATH=${GOPATH}
     flags:
       - -mod=readonly
     ldflags:
       - -s -w -X main.version={{.Version}}
-
 
 archives:
   - id: golang-cross
