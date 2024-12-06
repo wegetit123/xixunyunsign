@@ -1,0 +1,24 @@
+### 获取学校ID
+GET https://oss-resume.xixunyun.com/school_map/app202412.json HTTP/1.1
+Host: oss-resume.xixunyun.com
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.0.0 Safari/537.36
+Accept: application/json, text/plain, */*
+
+### 请求学校名称并返回ID
+# 根据返回的 JSON 数据，手动提取学校ID。你可以通过查询返回的数据来获取 `school_name` 与 `school_id` 的关系。
+# 例如，假设返回的JSON数据类似：
+# {
+#   "data": [
+#     {
+#       "schools": [
+#         {"school_name": "学校A", "school_id": "12345"},
+#         {"school_name": "学校B", "school_id": "67890"}
+#       ]
+#     }
+#   ]
+# }
+
+### 示例操作:
+# 如果查询学校名称为 "学校A"，则返回学校ID "12345"。
+# 如果查询学校名称为 "学校B"，则返回学校ID "67890"。
+# 如果查询的学校不存在，将没有相关信息返回。
