@@ -56,7 +56,7 @@ func querySignIn() {
 
 	req.Header.Set("User-Agent", "okhttp/3.8.0")
 	req.Header.Set("Accept-Encoding", "gzip")
-	req.Header.Set("Cookie", "PHPSESSID=sjgggpe71m53qv1o9dor0uurg4")
+	//req.Header.Set("Cookie", "PHPSESSID=sjgggpe71m53qv1o9dor0uurg4")
 
 	client := &http.Client{}
 	resp, err := client.Do(req)

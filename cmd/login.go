@@ -71,7 +71,7 @@ func login() {
 	req.Header.Set("User-Agent", "okhttp/3.8.0")
 	req.Header.Set("Accept-Encoding", "gzip")
 	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
-	req.Header.Set("Cookie", "PHPSESSID=sjgggpe71m53qv1o9dor0uurg4")
+	//req.Header.Set("Cookie", "PHPSESSID=sjgggpe71m53qv1o9dor0uurg4")
 
 	client := &http.Client{}
 	resp, err := client.Do(req)
