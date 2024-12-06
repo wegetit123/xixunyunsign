@@ -23,34 +23,31 @@ jobs:
       - name: Install Dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install -y build-essential gcc-aarch64-linux-gnu gcc-arm-linux-gnueabihf
+          sudo apt-get install -y build-essential gcc-aarch64-linux-gnu gcc-arm-linux-gnueabihf gcc-arm-linux-gnueabi
 
       # 4. 列出所有 ARM GCC 编译器以进行诊断
       - name: List ARM GCC Compilers
         run: |
-          echo "Listing all arm-linux-gnueabihf-gcc* in /usr/bin:"
+          echo "Listing all arm-linux-gnueabihf-gcc* and arm-linux-gnueabi-gcc* in /usr/bin:"
           ls -l /usr/bin/arm-linux-gnueabihf-gcc*
+          ls -l /usr/bin/arm-linux-gnueabi-gcc*
           echo "File details:"
           file /usr/bin/arm-linux-gnueabihf-gcc*
+          file /usr/bin/arm-linux-gnueabi-gcc*
 
-      # 5. 确保符号链接正确
-      - name: Ensure Symlink for Cross Compiler
+      # 5. 验证 ARMv7 和 ARMv5 编译器是否可用
+      - name: Verify Cross Compilers
         run: |
-          # 移除现有的符号链接（如果存在）
-          sudo rm -f /usr/bin/arm-linux-gnueabihf-gcc
-          # 查找实际的 gcc 版本，例如 arm-linux-gnueabihf-gcc-10 或 arm-linux-gnueabihf-gcc-12
-          GCC_VERSION=$(ls /usr/bin/arm-linux-gnueabihf-gcc-* | head -n 1)
-          # 创建新的符号链接指向实际的 gcc 版本
-          sudo ln -s "$GCC_VERSION" /usr/bin/arm-linux-gnueabihf-gcc
+          which arm-linux-gnueabihf-gcc arm-linux-gnueabi-gcc
+          arm-linux-gnueabihf-gcc --version
+          arm-linux-gnueabi-gcc --version
 
-      # 6. 再次验证编译器
-      - name: Verify Symlink and Compiler
+      # 6. 验证 ARMv5 编译器是否支持 -marm 选项
+      - name: Verify ARMv5 Compiler Options
         run: |
-          echo "Verifying the symlink and compiler:"
-          ls -l /usr/bin/arm-linux-gnueabihf-gcc
-          arm-linux-gnueabihf-gcc --version || echo "arm-linux-gnueabihf-gcc not found"
+          arm-linux-gnueabi-gcc -Q --help=target | grep "marm" || echo "-marm not supported"
 
-      # 7. 列出 Git 标签以确保正确
+      # 7. 列出 Git 标签以确保 GoReleaser 能正确获取标签信息
       - name: List Git Tags
         run: git tag
 
@@ -64,3 +61,4 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           # 设置特定架构的 C 编译器
           CC_LINUX_ARM_V7: arm-linux-gnueabihf-gcc
+          CC_LINUX_ARM_V5: arm-linux-gnueabi-gcc

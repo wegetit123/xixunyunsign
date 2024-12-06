@@ -38,7 +38,7 @@ builds:
     ldflags:
       - -s -w -X main.version={{.Version}}
 
-  # Linux armhf
+  # Linux armhf (armv7)
   - id: linux-armhf
     main: ./
     binary: xixunyunsign
@@ -74,6 +74,8 @@ builds:
     env:
       - CGO_ENABLED=1
       - GOARM=5
+      - CC=arm-linux-gnueabi-gcc # 使用适合 ARMv5 的 GCC 编译器
+      - CXX=arm-linux-gnueabi-g++ # 使用适合 ARMv5 的 C++ 编译器
     flags:
       - -mod=readonly
     ldflags:
@@ -92,6 +94,8 @@ builds:
     env:
       - CGO_ENABLED=1
       - GOARM=5
+      - CC=arm-linux-gnueabi-gcc # 使用适合 ARMv5 的 GCC 编译器
+      - CXX=arm-linux-gnueabi-g++ # 使用适合 ARMv5 的 C++ 编译器
     flags:
       - -mod=readonly
     ldflags:
@@ -116,57 +120,6 @@ builds:
     ldflags:
       - -s -w -X main.version={{.Version}}
 
-#  # Windows arm64
-#  - id: windows-arm64
-#    main: ./
-#    binary: xixunyunsign.exe
-#    goos:
-#      - windows
-#    goarch:
-#      - arm64
-#    env:
-#      - CGO_ENABLED=1
-#      - CC=aarch64-w64-mingw32-gcc
-#      - CXX=aarch64-w64-mingw32-g++
-#      - PKG_CONFIG_SYSROOT_DIR=/sysroot/windows/arm64
-#      - PKG_CONFIG_PATH=/sysroot/windows/arm64/usr/lib/pkgconfig:/sysroot/windows/arm64/usr/local/lib/pkgconfig
-#    flags:
-#      - -mod=readonly
-#    ldflags:
-#      - -s -w -X main.version={{.Version}}
-
-  # 静态编译的 Linux armhf
-  - id: linux-armhf-static
-    main: ./
-    binary: xixunyunsign
-    goos:
-      - linux
-    goarch:
-      - arm
-    goarm:
-      - 7
-    env:
-      - CGO_ENABLED=1
-    flags:
-      - -mod=readonly
-    ldflags:
-      - -s -w -X main.version={{.Version}}
-
-  # 静态编译的 Linux arm64
-  - id: linux-arm64-static
-    main: ./
-    binary: xixunyunsign
-    goos:
-      - linux
-    goarch:
-      - arm64
-    env:
-      - CGO_ENABLED=1
-    flags:
-      - -mod=readonly
-    ldflags:
-      - -s -w -X main.version={{.Version}}
-
 archives:
   - id: golang-cross
     builds:
@@ -178,7 +131,6 @@ archives:
       - linux-arm64-static
       - linux-armv5-static
       - windows-amd64
-      - windows-arm64
     name_template: "{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
     format: zip
     wrap_in_directory: true
