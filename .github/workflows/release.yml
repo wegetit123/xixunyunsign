@@ -1,0 +1,26 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*'  # 当您 push 以 v 开头的 tag 时触发工作流
+
+jobs:
+  build-and-release:
+    runs-on: ubuntu-latest
+    steps:
+      # 检出代码
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      # 使用 goreleaser 官方 Action
+      # 使用 docker 模式以及 goreleaser-cross 镜像进行跨平台编译
+      - name: Run Goreleaser
+        uses: goreleaser/goreleaser-action@v4
+        with:
+          version: latest
+          mode: docker
+          image: goreleaser/goreleaser-cross:latest
+          args: release --clean --rm-dist
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

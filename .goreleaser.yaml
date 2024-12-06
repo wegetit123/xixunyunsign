@@ -237,7 +237,7 @@ changelog:
 
 release:
   github:
-    owner: goreleaser
-    name: golang-cross-example
+    owner: theshdowaura
+    name: xixuanyunsign
   prerelease: auto
   draft: false
