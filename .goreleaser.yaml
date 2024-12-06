@@ -101,24 +101,6 @@ builds:
     ldflags:
       - -s -w -X main.version={{.Version}}
 
-  # Windows amd64
-  - id: windows-amd64
-    main: ./
-    binary: xixunyunsign.exe
-    goos:
-      - windows
-    goarch:
-      - amd64
-    env:
-      - CGO_ENABLED=1
-      - CC=x86_64-w64-mingw32-gcc
-      - CXX=x86_64-w64-mingw32-g++
-      - PKG_CONFIG_SYSROOT_DIR=/sysroot/windows/amd64
-      - PKG_CONFIG_PATH=/sysroot/windows/amd64/usr/lib/pkgconfig:/sysroot/windows/amd64/usr/local/lib/pkgconfig
-    flags:
-      - -mod=readonly
-    ldflags:
-      - -s -w -X main.version={{.Version}}
 
 archives:
   - id: golang-cross
