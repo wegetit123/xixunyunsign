@@ -10,10 +10,23 @@ jobs:
       # 检出代码
       - name: Checkout
         uses: actions/checkout@v3
-      - name: Install dependencies
-        run: sudo apt-get update && sudo apt-get install -y gcc-aarch64-linux-gnu gcc-arm-linux-gnueabihf
-      # 使用 GoReleaser 官方 Action
-      - name: Run Goreleaser
+
+      # 安装依赖
+      - name: Install Dependencies
+        run: sudo apt-get update && sudo apt-get install -y build-essential gcc-aarch64-linux-gnu gcc-arm-linux-gnueabihf
+
+      # 验证交叉编译器
+      - name: Verify Cross Compiler
+        run: |
+          which arm-linux-gnueabihf-gcc
+          arm-linux-gnueabihf-gcc --version
+
+      # 如果需要，创建符号链接
+      - name: Create Symlink for Cross Compiler
+        run: sudo ln -s /usr/bin/arm-linux-gnueabihf-gcc-10 /usr/bin/arm-linux-gnueabihf-gcc
+
+      # 运行 GoReleaser
+      - name: Run GoReleaser
         uses: goreleaser/goreleaser-action@v4
         with:
           version: latest # 安装最新版本的 GoReleaser
