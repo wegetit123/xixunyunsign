@@ -26,6 +26,8 @@ var (
 	longitude    string
 	remark       string
 	comment      string
+	province     string
+	city         string
 )
 
 var SignCmd = &cobra.Command{
@@ -44,6 +46,8 @@ func init() {
 	SignCmd.Flags().StringVarP(&longitude, "longitude", "", "", "经度")
 	SignCmd.Flags().StringVarP(&remark, "remark", "", "0", "备注")
 	SignCmd.Flags().StringVarP(&comment, "comment", "", "", "评论")
+	SignCmd.Flags().StringVarP(&province, "province", "p", "江苏省", "省份")
+	SignCmd.Flags().StringVarP(&city, "city", "c", "常州市", "城市")
 	SignCmd.MarkFlagRequired("account")
 	SignCmd.MarkFlagRequired("address")
 }
@@ -84,8 +88,8 @@ func signIn() {
 
 	data := url.Values{}
 	data.Set("address", address)
-	data.Set("province", "")
-	data.Set("city", "")
+	data.Set("province", province)
+	data.Set("city", city)
 	data.Set("latitude", encryptedLatitude)
 	data.Set("longitude", encryptedLongitude)
 	data.Set("remark", remark)
@@ -106,13 +110,13 @@ func signIn() {
 	query.Add("platform", "android")
 	query.Add("entrance_year", "0")
 	query.Add("graduate_year", "0")
-	query.Add("school_id", "7")
+	query.Add("school_id", school_id)
 	req.URL.RawQuery = query.Encode()
 
 	req.Header.Set("User-Agent", "okhttp/3.8.0")
 	req.Header.Set("Accept-Encoding", "gzip")
 	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
-	req.Header.Set("Cookie", "PHPSESSID=qkc555lu6050h43e204crialf0")
+	//req.Header.Set("Cookie", "PHPSESSID=qkc555lu6050h43e204crialf0")
 
 	client := &http.Client{}
 	resp, err := client.Do(req)
