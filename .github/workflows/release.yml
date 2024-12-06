@@ -13,7 +13,7 @@ jobs:
         with:
           fetch-depth: 0
 
-      # 安装 Go（可选，根据项目需要）
+      # 安装 Go（根据项目需要）
       - name: Set up Go
         uses: actions/setup-go@v4
         with:
@@ -25,29 +25,36 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y build-essential gcc-aarch64-linux-gnu gcc-arm-linux-gnueabihf
 
-      # 列出交叉编译器，验证安装
-      - name: List Cross Compilers
+      # 列出所有 ARM GCC 编译器以进行诊断
+      - name: List ARM GCC Compilers
         run: |
+          echo "Listing all arm-linux-gnueabihf-gcc* in /usr/bin:"
           ls -l /usr/bin/arm-linux-gnueabihf-gcc*
-          arm-linux-gnueabihf-gcc --version || echo "arm-linux-gnueabihf-gcc not found"
+          echo "File details:"
+          file /usr/bin/arm-linux-gnueabihf-gcc*
 
-      # 确保符号链接正确（根据实际编译器版本调整）
+      # 确保符号链接正确
       - name: Ensure Symlink for Cross Compiler
         run: |
-          sudo ln -sf /usr/bin/arm-linux-gnueabihf-gcc-12 /usr/bin/arm-linux-gnueabihf-gcc
+          # 移除现有的符号链接（如果存在）
+          sudo rm -f /usr/bin/arm-linux-gnueabihf-gcc
+          # 创建新的符号链接（根据实际版本调整）
+          sudo ln -s /usr/bin/arm-linux-gnueabihf-gcc-10 /usr/bin/arm-linux-gnueabihf-gcc
 
-      # 再次验证编译器
-      - name: Verify Cross Compiler
+      # 再次列出编译器以确认符号链接
+      - name: Verify Symlink and Compiler
         run: |
-          which arm-linux-gnueabihf-gcc
-          arm-linux-gnueabihf-gcc --version
+          echo "Verifying the symlink and compiler:"
+          ls -l /usr/bin/arm-linux-gnueabihf-gcc
+          arm-linux-gnueabihf-gcc --version || echo "arm-linux-gnueabihf-gcc not found"
 
       # 运行 GoReleaser
       - name: Run GoReleaser
         uses: goreleaser/goreleaser-action@v4
         with:
-          version: latest
+          version: latest # 安装最新版本的 GoReleaser
           args: release --clean
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          CC_LINUX_ARM_V7: arm-linux-gnueabihf-gcc-12 # 根据实际编译器调整
+          # 设置特定架构的 C 编译器
+          CC_LINUX_ARM_V7: arm-linux-gnueabihf-gcc
