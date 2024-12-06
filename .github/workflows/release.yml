@@ -1,9 +1,7 @@
 name: Release
 
 on:
-  push:
-    tags:
-      - 'v*'  # 当您 push 以 v 开头的 tag 时触发工作流
+  workflow_dispatch: # 手动触发
 
 jobs:
   build-and-release:
