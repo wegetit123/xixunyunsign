@@ -175,6 +175,7 @@ archives:
       - linux-armhf
       - linux-armv5
       - linux-armhf-static
+      - linux-arm64-static
       - linux-armv5-static
       - windows-amd64
       - windows-arm64

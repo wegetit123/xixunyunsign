@@ -10,7 +10,8 @@ jobs:
       # 检出代码
       - name: Checkout
         uses: actions/checkout@v3
-
+      - name: Install dependencies
+        run: sudo apt-get update && sudo apt-get install -y gcc-aarch64-linux-gnu
       # 使用 GoReleaser 官方 Action
       - name: Run Goreleaser
         uses: goreleaser/goreleaser-action@v4
