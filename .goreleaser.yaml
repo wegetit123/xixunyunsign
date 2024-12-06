@@ -130,7 +130,6 @@ archives:
       - linux-armhf-static
       - linux-arm64-static
       - linux-armv5-static
-      - windows-amd64
     name_template: "{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
     format: zip
     wrap_in_directory: true
