@@ -13,11 +13,11 @@ jobs:
         with:
           fetch-depth: 0
 
-      # 设置 Go 版本（可选）
+      # 安装 Go（可选，根据项目需要）
       - name: Set up Go
         uses: actions/setup-go@v4
         with:
-          go-version: '1.22' # 根据您的需求调整版本
+          go-version: '1.20' # 根据您的需求调整版本
 
       # 安装依赖
       - name: Install Dependencies
@@ -25,25 +25,29 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y build-essential gcc-aarch64-linux-gnu gcc-arm-linux-gnueabihf
 
-      # 验证交叉编译器
+      # 列出交叉编译器，验证安装
+      - name: List Cross Compilers
+        run: |
+          ls -l /usr/bin/arm-linux-gnueabihf-gcc*
+          arm-linux-gnueabihf-gcc --version || echo "arm-linux-gnueabihf-gcc not found"
+
+      # 确保符号链接正确（根据实际编译器版本调整）
+      - name: Ensure Symlink for Cross Compiler
+        run: |
+          sudo ln -sf /usr/bin/arm-linux-gnueabihf-gcc-12 /usr/bin/arm-linux-gnueabihf-gcc
+
+      # 再次验证编译器
       - name: Verify Cross Compiler
         run: |
           which arm-linux-gnueabihf-gcc
           arm-linux-gnueabihf-gcc --version
 
-      # 确保符号链接正确
-      - name: Ensure Symlink for Cross Compiler
-        run: |
-          sudo ln -sf /usr/bin/arm-linux-gnueabihf-gcc-10 /usr/bin/arm-linux-gnueabihf-gcc
-
       # 运行 GoReleaser
       - name: Run GoReleaser
         uses: goreleaser/goreleaser-action@v4
         with:
-          version: latest # 安装最新版本的 GoReleaser
-          args: release --clean # 移除 --debug 参数
-          debug: true # 启用调试模式
+          version: latest
+          args: release --clean
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          # 设置特定架构的 C 编译器
-          CC_LINUX_ARM_V7: arm-linux-gnueabihf-gcc
+          CC_LINUX_ARM_V7: arm-linux-gnueabihf-gcc-12 # 根据实际编译器调整
