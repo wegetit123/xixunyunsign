@@ -12,9 +12,6 @@ builds:
       - CGO_ENABLED=1
       - CC=x86_64-linux-gnu-gcc
       - CXX=x86_64-linux-gnu-g++
-      - PKG_CONFIG_SYSROOT_DIR=/sysroot/linux/amd64
-      - PKG_CONFIG_PATH=/sysroot/linux/amd64/usr/lib/pkgconfig:/sysroot/linux/amd64/usr/local/lib/pkgconfig
-      - GOPATH=${GOPATH}
     flags:
       - -mod=readonly
     ldflags:
@@ -32,9 +29,6 @@ builds:
       - CGO_ENABLED=1
       - CC=aarch64-linux-gnu-gcc
       - CXX=aarch64-linux-gnu-g++
-      - PKG_CONFIG_SYSROOT_DIR=/sysroot/linux/arm64
-      - PKG_CONFIG_PATH=/sysroot/linux/arm64/usr/lib/pkgconfig:/sysroot/linux/arm64/usr/local/lib/pkgconfig
-      - GOPATH=${GOPATH}
     flags:
       - -mod=readonly
     ldflags:
@@ -54,11 +48,6 @@ builds:
       - CGO_ENABLED=1
       - CC=arm-linux-gnueabihf-gcc
       - CXX=arm-linux-gnueabihf-g++
-      - CGO_CFLAGS=--sysroot=/sysroot/linux/armhf
-      - CGO_LDFLAGS=--sysroot=/sysroot/linux/armhf
-      - PKG_CONFIG_SYSROOT_DIR=/sysroot/linux/armhf
-      - PKG_CONFIG_PATH=/sysroot/linux/armhf/opt/vc/lib/pkgconfig:/sysroot/linux/armhf/usr/lib/arm-linux-gnueabihf/pkgconfig:/sysroot/linux/armhf/usr/lib/pkgconfig:/sysroot/linux/armhf/usr/local/lib/pkgconfig
-      - GOPATH=${GOPATH}
     flags:
       - -mod=readonly
     ldflags:
@@ -79,7 +68,6 @@ builds:
       - GOARM=5
       - CC=arm-linux-gnueabi-gcc # 使用适合 ARMv5 的 GCC 编译器
       - CXX=arm-linux-gnueabi-g++ # 使用适合 ARMv5 的 C++ 编译器
-      - GOPATH=${GOPATH}
     flags:
       - -mod=readonly
     ldflags:
@@ -100,7 +88,6 @@ builds:
       - GOARM=5
       - CC=arm-linux-gnueabi-gcc # 使用适合 ARMv5 的 GCC 编译器
       - CXX=arm-linux-gnueabi-g++ # 使用适合 ARMv5 的 C++ 编译器
-      - GOPATH=${GOPATH}
     flags:
       - -mod=readonly
     ldflags:
@@ -113,9 +100,9 @@ archives:
       - linux-arm64
       - linux-armhf
       - linux-armv5
+      - linux-armv5-static
       - linux-armhf-static
       - linux-arm64-static
-      - linux-armv5-static
     name_template: "{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
     format: zip
     wrap_in_directory: true
