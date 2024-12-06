@@ -13,8 +13,9 @@ import (
 )
 
 var (
-	account  string
-	password string
+	account   string
+	password  string
+	school_id string
 )
 
 var LoginCmd = &cobra.Command{
@@ -28,6 +29,7 @@ var LoginCmd = &cobra.Command{
 func init() {
 	LoginCmd.Flags().StringVarP(&account, "account", "a", "", "账号")
 	LoginCmd.Flags().StringVarP(&password, "password", "p", "", "密码")
+	LoginCmd.Flags().StringVarP(&school_id, "school_id", "i", "7", "学校id")
 	LoginCmd.MarkFlagRequired("account")
 	LoginCmd.MarkFlagRequired("password")
 }
@@ -44,7 +46,7 @@ func login() {
 	data.Set("mac", "7C:F3:1B:BB:F1:C4")
 	data.Set("password", password)
 	data.Set("system", "10")
-	data.Set("school_id", "7")
+	data.Set("school_id", school_id)
 	data.Set("model", "LM-G820")
 	data.Set("app_id", "cn.vanber.xixunyun.saas")
 	data.Set("account", account)
@@ -63,7 +65,7 @@ func login() {
 	query.Add("platform", "android")
 	query.Add("entrance_year", "0")
 	query.Add("graduate_year", "0")
-	query.Add("school_id", "7")
+	query.Add("school_id", school_id)
 	req.URL.RawQuery = query.Encode()
 
 	req.Header.Set("User-Agent", "okhttp/3.8.0")
