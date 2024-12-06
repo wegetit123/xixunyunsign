@@ -7,13 +7,17 @@ jobs:
   build-and-release:
     runs-on: ubuntu-latest
     steps:
-      # 检出代码
+      # 检出代码，获取完整的 Git 历史记录
       - name: Checkout
         uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
 
       # 安装依赖
       - name: Install Dependencies
-        run: sudo apt-get update && sudo apt-get install -y build-essential gcc-aarch64-linux-gnu gcc-arm-linux-gnueabihf
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y build-essential gcc-aarch64-linux-gnu gcc-arm-linux-gnueabihf
 
       # 验证交叉编译器
       - name: Verify Cross Compiler
@@ -21,15 +25,19 @@ jobs:
           which arm-linux-gnueabihf-gcc
           arm-linux-gnueabihf-gcc --version
 
-      # 如果需要，创建符号链接
-      - name: Create Symlink for Cross Compiler
-        run: sudo ln -s /usr/bin/arm-linux-gnueabihf-gcc-10 /usr/bin/arm-linux-gnueabihf-gcc
+      # 确保符号链接正确
+      - name: Ensure Symlink for Cross Compiler
+        run: |
+          if [ "$(readlink /usr/bin/arm-linux-gnueabihf-gcc)" != "arm-linux-gnueabihf-gcc-10" ]; then
+            sudo ln -sf /usr/bin/arm-linux-gnueabihf-gcc-10 /usr/bin/arm-linux-gnueabihf-gcc
+          fi
 
       # 运行 GoReleaser
       - name: Run GoReleaser
         uses: goreleaser/goreleaser-action@v4
         with:
           version: latest # 安装最新版本的 GoReleaser
-          args: release --clean # 移除无效的 --rm-dist 参数
+          args: release --clean --debug # 添加 --debug 以获取更多日志信息
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          CC_LINUX_ARM_V7: arm-linux-gnueabihf-gcc
