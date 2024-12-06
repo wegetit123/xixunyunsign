@@ -7,25 +7,25 @@ jobs:
   build-and-release:
     runs-on: ubuntu-latest
     steps:
-      # 检出代码，获取完整的 Git 历史记录
+      # 1. 检出代码，获取完整的 Git 历史记录
       - name: Checkout
         uses: actions/checkout@v3
         with:
           fetch-depth: 0
 
-      # 安装 Go（根据项目需要）
+      # 2. 设置 Go 版本为 1.22
       - name: Set up Go
         uses: actions/setup-go@v4
         with:
-          go-version: '1.20' # 根据您的需求调整版本
+          go-version: '1.22'
 
-      # 安装依赖
+      # 3. 安装依赖，包括交叉编译器
       - name: Install Dependencies
         run: |
           sudo apt-get update
           sudo apt-get install -y build-essential gcc-aarch64-linux-gnu gcc-arm-linux-gnueabihf
 
-      # 列出所有 ARM GCC 编译器以进行诊断
+      # 4. 列出所有 ARM GCC 编译器以进行诊断
       - name: List ARM GCC Compilers
         run: |
           echo "Listing all arm-linux-gnueabihf-gcc* in /usr/bin:"
@@ -33,22 +33,28 @@ jobs:
           echo "File details:"
           file /usr/bin/arm-linux-gnueabihf-gcc*
 
-      # 确保符号链接正确
+      # 5. 确保符号链接正确
       - name: Ensure Symlink for Cross Compiler
         run: |
           # 移除现有的符号链接（如果存在）
           sudo rm -f /usr/bin/arm-linux-gnueabihf-gcc
-          # 创建新的符号链接（根据实际版本调整）
-          sudo ln -s /usr/bin/arm-linux-gnueabihf-gcc-10 /usr/bin/arm-linux-gnueabihf-gcc
+          # 查找实际的 gcc 版本，例如 arm-linux-gnueabihf-gcc-10 或 arm-linux-gnueabihf-gcc-12
+          GCC_VERSION=$(ls /usr/bin/arm-linux-gnueabihf-gcc-* | head -n 1)
+          # 创建新的符号链接指向实际的 gcc 版本
+          sudo ln -s "$GCC_VERSION" /usr/bin/arm-linux-gnueabihf-gcc
 
-      # 再次列出编译器以确认符号链接
+      # 6. 再次验证编译器
       - name: Verify Symlink and Compiler
         run: |
           echo "Verifying the symlink and compiler:"
           ls -l /usr/bin/arm-linux-gnueabihf-gcc
           arm-linux-gnueabihf-gcc --version || echo "arm-linux-gnueabihf-gcc not found"
 
-      # 运行 GoReleaser
+      # 7. 列出 Git 标签以确保正确
+      - name: List Git Tags
+        run: git tag
+
+      # 8. 运行 GoReleaser
       - name: Run GoReleaser
         uses: goreleaser/goreleaser-action@v4
         with:
