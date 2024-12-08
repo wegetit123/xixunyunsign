@@ -52,11 +52,13 @@ func InitDB() error {
 		return err
 	}
 
-	// Create the school_info table
+	// Create the school_info table (updated to include city_name and city_id)
 	createSchoolTableSQL := `
     CREATE TABLE IF NOT EXISTS school_info (
         school_id TEXT PRIMARY KEY,
-        school_name TEXT
+        school_name TEXT,
+        city_name TEXT,  -- Added city_name
+        city_id TEXT     -- Added city_id
     );
     `
 	_, err = db.Exec(createSchoolTableSQL)
@@ -64,11 +66,29 @@ func InitDB() error {
 		return err
 	}
 
+	// Create schedules table if it doesn't exist
+	_, err = db.Exec(`CREATE TABLE IF NOT EXISTS schedules (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        account TEXT,
+        address TEXT,
+        latitude TEXT,
+        longitude TEXT,
+        province TEXT,
+        city TEXT,
+        remark TEXT,
+        comment TEXT,
+        cron_expr TEXT,
+        enabled INTEGER DEFAULT 1
+    )`)
+	if err != nil {
+		return fmt.Errorf("创建 schedules 表失败: %v", err)
+	}
+
 	return nil
 }
 
 // SaveSchoolInfo saves or updates the school information in the database.
-func SaveSchoolInfo(schoolID, schoolName string) error {
+func SaveSchoolInfo(cityName, cityID, schoolID, schoolName string) error {
 	if db == nil {
 		if err := InitDB(); err != nil {
 			return err
@@ -76,19 +96,22 @@ func SaveSchoolInfo(schoolID, schoolName string) error {
 	}
 
 	insertSQL := `
-    INSERT INTO school_info (school_id, school_name)
-    VALUES (?, ?)
+    INSERT INTO school_info (city_name, city_id, school_id, school_name)
+    VALUES (?, ?, ?, ?)
     ON CONFLICT(school_id) DO UPDATE SET
-        school_name = excluded.school_name;
+        school_name = excluded.school_name,
+        city_name = excluded.city_name,
+        city_id = excluded.city_id;
     `
-	_, err := db.Exec(insertSQL, schoolID, schoolName)
+
+	_, err := db.Exec(insertSQL, cityName, cityID, schoolID, schoolName)
 	return err
 }
 
 // FetchAndSaveSchoolData fetches the school data from the given API and saves it to the database.
 func FetchAndSaveSchoolData() error {
 	// Make the GET request to the API
-	resp, err := http.Get("https://oss-resume.xixunyun.com/school_map/app202412.json")
+	resp, err := http.Get("https://api.xixunyun.com/login/schoolmap")
 	if err != nil {
 		return err
 	}
@@ -99,8 +122,9 @@ func FetchAndSaveSchoolData() error {
 		Code    int    `json:"code"`
 		Message string `json:"message"`
 		Data    []struct {
-			Groud   string       `json:"groud"`
-			Schools []SchoolInfo `json:"schools"`
+			CityName string       `json:"name"`
+			CityId   string       `json:"id"`
+			Schools  []SchoolInfo `json:"list"`
 		} `json:"data"`
 	}
 
@@ -111,7 +135,7 @@ func FetchAndSaveSchoolData() error {
 	// Loop through the data and save each school info
 	for _, group := range result.Data {
 		for _, school := range group.Schools {
-			if err := SaveSchoolInfo(school.SchoolID, school.SchoolName); err != nil {
+			if err := SaveSchoolInfo(group.CityName, group.CityId, school.SchoolID, school.SchoolName); err != nil {
 				log.Printf("Error saving school %s: %v", school.SchoolName, err)
 			}
 		}
@@ -147,6 +171,7 @@ func SaveUser(account, password, token, latitude, longitude, bindPhone, userNumb
         entrance_year = excluded.entrance_year,
         graduation_year = excluded.graduation_year;
     `
+
 	_, err := db.Exec(insertSQL, account, password, token, latitude, longitude, bindPhone, userNumber, userName, schoolID, sex, className, entranceYear, graduationYear)
 	return err
 }
@@ -223,7 +248,7 @@ func SearchSchoolID(schoolName string) ([]SchoolInfo, error) {
 		}
 	}
 
-	// 使用 SQL LIKE 进行模糊查询，%符号表示匹配任意字符
+	// Use SQL LIKE for fuzzy matching
 	querySQL := `SELECT school_id, school_name FROM school_info WHERE school_name LIKE ?;`
 	likeName := "%" + schoolName + "%"
 
@@ -254,8 +279,7 @@ func IsSchoolInfoTableEmpty() (bool, error) {
 	querySQL := `SELECT COUNT(*) FROM school_info;`
 	err := db.QueryRow(querySQL).Scan(&count)
 	if err != nil {
-		log.Printf("Error checking school_info table: %v", err)
-		return false, err
+		return false, fmt.Errorf("查询 school_info 表时发生错误: %v", err)
 	}
 	return count == 0, nil
 }
