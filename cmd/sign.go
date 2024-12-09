@@ -1,20 +1,19 @@
 package cmd
 
 import (
+	"crypto/rand"
+	"crypto/rsa"
+	"crypto/x509"
 	"encoding/base64"
 	"encoding/json"
+	"encoding/pem"
+	"errors"
 	"fmt"
 	"io/ioutil"
 	"net/http"
 	"net/url"
 	"regexp"
 	"strings"
-
-	"crypto/rand"
-	"crypto/rsa"
-	"crypto/x509"
-	"encoding/pem"
-	"errors"
 
 	"github.com/spf13/cobra"
 	"xixuanyunsign/utils"
@@ -29,8 +28,10 @@ var (
 	comment      string
 	province     string
 	city         string
+	debug        bool // 添加 debug 标志
 )
 
+// SignCmd 定义签到命令
 var SignCmd = &cobra.Command{
 	Use:   "sign",
 	Short: "执行签到",
@@ -49,13 +50,22 @@ func init() {
 	SignCmd.Flags().StringVarP(&comment, "comment", "", "", "评论")
 	SignCmd.Flags().StringVarP(&province, "province", "p", "", "省份")
 	SignCmd.Flags().StringVarP(&city, "city", "c", "", "城市")
+	SignCmd.Flags().StringVarP(&school_id, "school_id", "s", "", "学校ID") // 添加 school_id 标志
+	SignCmd.Flags().BoolVarP(&debug, "debug", "d", false, "启用调试模式")      // 添加 debug 标志
+
+	// 标记必需的标志
 	SignCmd.MarkFlagRequired("account")
 	SignCmd.MarkFlagRequired("address")
 }
 
+// signIn 执行签到逻辑
 func signIn() {
+	// 获取用户信息
 	token, dbLatitude, dbLongitude, err := utils.GetUser(account)
 	if err != nil || token == "" {
+		if debug {
+			fmt.Printf("获取用户信息失败: %v\n", err)
+		}
 		fmt.Println("未找到该账号的 token，请先登录。")
 		return
 	}
@@ -72,23 +82,33 @@ func signIn() {
 		fmt.Println("未提供经纬度信息，且数据库中不存在，请先查询签到信息或手动提供经纬度。")
 		return
 	}
+
 	// 使用公钥加密 latitude 和 longitude
 	encryptedLatitude, err := rsaEncrypt([]byte(latitude))
 	if err != nil {
+		if debug {
+			fmt.Printf("加密纬度失败: %v\n", err)
+		}
 		fmt.Println("加密纬度失败:", err)
 		return
 	}
 
 	encryptedLongitude, err := rsaEncrypt([]byte(longitude))
 	if err != nil {
+		if debug {
+			fmt.Printf("加密经度失败: %v\n", err)
+		}
 		fmt.Println("加密经度失败:", err)
 		return
 	}
 
 	// 从 address 提取 province 和 city
-	if address == "" {
+	if address != "" {
 		extractedProvince, extractedCity, err := extractProvinceAndCity(address)
 		if err != nil {
+			if debug {
+				fmt.Printf("提取省份和城市失败: %v\n", err)
+			}
 			fmt.Println("地址格式不正确，无法提取省份和城市:", err)
 			return
 		}
@@ -111,6 +131,9 @@ func signIn() {
 
 	req, err := http.NewRequest("POST", apiURL, strings.NewReader(data.Encode()))
 	if err != nil {
+		if debug {
+			fmt.Printf("创建请求失败: %v\n", err)
+		}
 		fmt.Println("创建请求失败:", err)
 		return
 	}
@@ -128,21 +151,48 @@ func signIn() {
 	req.Header.Set("User-Agent", "okhttp/3.8.0")
 	req.Header.Set("Accept-Encoding", "gzip")
 	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
-	//req.Header.Set("Cookie", "PHPSESSID=qkc555lu6050h43e204crialf0")
+	// req.Header.Set("Cookie", "PHPSESSID=qkc555lu6050h43e204crialf0") // 注释掉不必要的 Cookie
 
 	client := &http.Client{}
 	resp, err := client.Do(req)
 	if err != nil {
+		if debug {
+			fmt.Printf("发送 HTTP 请求失败: %v\n", err)
+		}
 		fmt.Println("请求失败:", err)
 		return
 	}
 	defer resp.Body.Close()
 
-	body, _ := ioutil.ReadAll(resp.Body)
-	var result map[string]interface{}
-	json.Unmarshal(body, &result)
+	body, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		if debug {
+			fmt.Printf("读取响应体失败: %v\n", err)
+		}
+		fmt.Println("读取响应体失败:", err)
+		return
+	}
 
-	if result["code"].(float64) != 20000 {
+	if debug {
+		fmt.Printf("响应状态码: %d\n", resp.StatusCode)
+		fmt.Printf("响应体: %s\n", string(body))
+	}
+
+	var result map[string]interface{}
+	err = json.Unmarshal(body, &result)
+	if err != nil {
+		if debug {
+			fmt.Printf("解析 JSON 失败: %v\n", err)
+		}
+		fmt.Println("解析响应数据失败:", err)
+		return
+	}
+
+	// 检查响应码是否为 20000
+	if code, ok := result["code"].(float64); !ok || code != 20000 {
+		if debug {
+			fmt.Printf("签到失败，响应内容: %v\n", result)
+		}
 		fmt.Println("签到失败:", result["message"])
 		return
 	}
@@ -168,7 +218,10 @@ rHOSyd/deTvcS+hRSQIDAQAB
 	if err != nil {
 		return "", err
 	}
-	pub := pubInterface.(*rsa.PublicKey)
+	pub, ok := pubInterface.(*rsa.PublicKey)
+	if !ok {
+		return "", errors.New("解析公钥类型失败")
+	}
 
 	encryptedData, err := rsa.EncryptPKCS1v15(rand.Reader, pub, origData)
 	if err != nil {
@@ -180,6 +233,7 @@ rHOSyd/deTvcS+hRSQIDAQAB
 	return encryptedString, nil
 }
 
+// extractProvinceAndCity 从地址中提取省份和城市
 func extractProvinceAndCity(address string) (string, string, error) {
 	// 定义正则表达式，匹配省份和城市
 	re := regexp.MustCompile(`(?P<province>[^省]+省)?(?P<city>[^市]+市)?`)
