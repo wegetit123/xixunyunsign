@@ -50,8 +50,7 @@ func init() {
 	SignCmd.Flags().StringVarP(&comment, "comment", "", "", "评论")
 	SignCmd.Flags().StringVarP(&province, "province", "p", "", "省份")
 	SignCmd.Flags().StringVarP(&city, "city", "c", "", "城市")
-	SignCmd.Flags().StringVarP(&school_id, "school_id", "s", "", "学校ID") // 添加 school_id 标志
-	SignCmd.Flags().BoolVarP(&debug, "debug", "d", false, "启用调试模式")      // 添加 debug 标志
+	SignCmd.Flags().BoolVarP(&debug, "debug", "d", false, "启用调试模式") // 添加 debug 标志
 
 	// 标记必需的标志
 	SignCmd.MarkFlagRequired("account")
@@ -145,7 +144,7 @@ func signIn() {
 	query.Add("platform", "android")
 	query.Add("entrance_year", "0")
 	query.Add("graduate_year", "0")
-	query.Add("school_id", school_id)
+	query.Add("school_id", school_id) // 确保 school_id 已正确获取
 	req.URL.RawQuery = query.Encode()
 
 	req.Header.Set("User-Agent", "okhttp/3.8.0")
