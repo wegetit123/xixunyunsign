@@ -3,14 +3,10 @@
 [自动签到看这里](scheduler.md)
 
 ![License](https://img.shields.io/github/license/theshdowaura/xixunyunsign.svg)
-
 ![Version](https://img.shields.io/github/v/release/theshdowaura/xixunyunsign.svg)
+![Build Status](https://img.shields.io/github/actions/workflow/status/theshdowaura/xixunyunsign/release.yml?branch=main)
+![Run Status](https://img.shields.io/github/actions/workflow/status/theshdowaura/xixunyunsign/test.yml?branch=main)
 
-![Build Status](https://img.shields.io/github/workflow/status/theshdowaura/xixunyunsign/CI)
-
-![Code Quality](https://img.shields.io/codeclimate/maintainability/theshdowaura/xixunyunsign.svg)
-
-![Dependency Status](https://img.shields.io/david/theshdowaura/xixunyunsign.svg)
 
 ## 项目简介
 
