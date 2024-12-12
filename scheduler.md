@@ -10,10 +10,11 @@
 2. 添加 Secrets
    点击 New repository secret（新建仓库密钥）按钮。
    按以下名称和对应的值添加 Secrets：
-   USERNAME：应用程序的用户名。
-   PASSWORD：用于身份验证的密码。
-   ADDRESS：签名所需的地址值。
-   ADDRESS_NAME：签名所需的地址名称。
+   USERNAME：习讯云的账号。
+   PASSWORD：习讯云的密码。
+   ADDRESS：签到所需的地址值。
+   ADDRESS_NAME：签到所需的地址名称。
+   API_KEY_FANGTANG:微信公众号方糖提供的密钥apikey
 ### 例如
 
 Secret 名称：USERNAME
