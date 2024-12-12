@@ -39,4 +39,4 @@ jobs:
           
           go run main.go login -a ${{secrets.USERNAME}} -p ${{secrets.PASSWORD}}
           go run main.go query -a ${{secrets.USERNAME}}
-          go run main.go sign -a ${{secrets.USERNAME}} --address=${{secrets.ADDRESS}} --address_name=${{secrets.ADDRESS_NAME}} -k ${{secret.API_KEY_FANGTANG}}
+          go run main.go sign -a ${{secrets.USERNAME}} --address=${{secrets.ADDRESS}} --address_name=${{secrets.ADDRESS_NAME}} -k ${{secrets.API_KEY_FANGTANG}}
