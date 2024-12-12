@@ -2,6 +2,12 @@
 
 [自动签到看这里](scheduler.md)
 
+![License](https://img.shields.io/github/license/theshdowaura/xixunyunsign.svg)
+![Version](https://img.shields.io/github/v/release/theshdowaura/xixunyunsign.svg)
+![Build Status](https://img.shields.io/github/actions/workflow/status/theshdowaura/xixunyunsign/release.yml?branch=main)
+![Run Status](https://img.shields.io/github/actions/workflow/status/theshdowaura/xixunyunsign/test.yml?branch=main)
+
+
 ## 项目简介
 
 习讯云签到工具是一个使用 Go 语言和 Cobra 库编写的命令行工具，用于与习讯云平台的 API 进行交互，实现账户登录、查询签到信息和执行签到等功能。该工具支持多用户操作，使用 SQLite 数据库存储用户的 Token 及签到位置信息。
@@ -23,7 +29,7 @@
 1. **克隆项目代码**
 
    ```bash
-   git clone https://github.com/theshdowaura/xixunyunsign-signin-tool.git
+   git clone https://github.com/theshdowaura/xixunyunsign.git
    ```
 
 2. **进入项目目录**
@@ -338,7 +344,7 @@ go build -o xixunyunsign.exe
 ## 开发计划
 
 - [x] 添加自动签到功能，支持定时任务。
-- [ ] 优化错误处理，提供更友好的提示信息。
+- [x] 优化错误处理，提供更友好的提示信息。
 - [ ] 增加对其他 API 接口的支持，如请假申请等。
 - [ ] 提供更详细的日志记录，方便调试和问题排查。
 
@@ -356,3 +362,7 @@ go build -o xixunyunsign.exe
 ## 查看数据库
 
 请使用navicat连接本项目下的config.db,使用sqlite的方式
+
+## 为我买一杯coffee
+
+[![Buy Me A Coffee](https://img.shields.io/badge/Buy%20Me%20A%20Coffee-%F0%9F%8D%8B-yellow.svg)](https://www.buymeacoffee.com/theshdowaura)
