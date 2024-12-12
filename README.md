@@ -6,6 +6,8 @@
 ![Version](https://img.shields.io/github/v/release/theshdowaura/xixunyunsign.svg)
 ![Build Status](https://github.com/theshdowaura/xixunyunsign/actions/workflows/release.yml/badge.svg)
 ![Run Status](https://github.com/theshdowaura/xixunyunsign/actions/workflows/test.yml/badge.svg)
+![Docker Status](https://github.com/theshdowaura/xixunyunsign/actions/workflows/docker-publish.yml/badge.svg)
+
 
 
 ## 项目简介
