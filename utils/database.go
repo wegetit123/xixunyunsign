@@ -213,6 +213,25 @@ func UpdateCoordinates(account, latitude, longitude string) error {
 	return err
 }
 
+func GetCoordinates(account string) (string, string, error) {
+	if db == nil {
+		if err := InitDB(); err != nil {
+			return "", "", err
+		}
+	}
+	querySQL := `
+        SELECT latitude, longitude
+        FROM users
+        WHERE account = ?;
+    `
+	var latitude, longitude string
+	err := db.QueryRow(querySQL, account).Scan(&latitude, &longitude)
+	if err != nil {
+		return "", "", err
+	}
+	return latitude, longitude, nil
+}
+
 // GetAdditionalUserData retrieves additional user data for constructing the query parameters.
 func GetAdditionalUserData(account string) (map[string]string, error) {
 	if db == nil {

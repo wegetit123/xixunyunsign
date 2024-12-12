@@ -10,6 +10,7 @@ import (
 	"errors"
 	"fmt"
 	"io/ioutil"
+	"log"
 	"net/http"
 	"net/url"
 	"regexp"
@@ -51,6 +52,7 @@ func init() {
 	SignCmd.Flags().StringVarP(&province, "province", "p", "", "省份")
 	SignCmd.Flags().StringVarP(&city, "city", "c", "", "城市")
 	SignCmd.Flags().BoolVarP(&debug, "debug", "d", false, "启用调试模式") // 添加 debug 标志
+	SignCmd.Flags().StringVarP(&secret_key, "secret_key", "k", "", "server酱密钥")
 
 	// 标记必需的标志
 	SignCmd.MarkFlagRequired("account")
@@ -193,10 +195,21 @@ func signIn() {
 			fmt.Printf("签到失败，响应内容: %v\n", result)
 		}
 		fmt.Println("签到失败:", result["message"])
+		if secret_key != "" {
+			PushMsgToWechat("签到失败", result["message"].(string), "9", secret_key)
+		}
 		return
 	}
 
 	fmt.Println("签到成功！")
+
+	if secret_key != "" {
+		latitude, longitude, err = utils.GetCoordinates(account)
+		if err != nil {
+			log.Fatalln(err)
+		}
+		PushMsgToWechat("签到成功", result["message"].(string)+"\n签到地址（使用高德地图查询）为"+latitude+"\n"+longitude, "9", secret_key)
+	}
 }
 
 // rsaEncrypt 使用提供的公钥对数据进行加密
