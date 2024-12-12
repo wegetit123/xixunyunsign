@@ -163,6 +163,6 @@ changelog:
 release:
   github:
     owner: theshdowaura
-    name: xixuanyunsign
+    name: xixunyunsign
   prerelease: auto
   draft: false
