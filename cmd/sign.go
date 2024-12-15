@@ -196,7 +196,11 @@ func signIn() {
 		}
 		fmt.Println("签到失败:", result["message"])
 		if secret_key != "" {
-			PushMsgToWechat("签到失败", result["message"].(string), "9", secret_key)
+			resultStr, err := json.Marshal(result)
+			if err != nil {
+				println("json解析错误")
+			}
+			PushMsgToWechat("签到失败", result["message"].(string)+"\r\n"+"错误详细信息："+string(resultStr), "9", secret_key)
 		}
 		return
 	}
