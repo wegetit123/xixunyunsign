@@ -45,19 +45,11 @@ jobs:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
 
-      - name: Get Git tag
-        id: git-tag
-        run: echo "GIT_TAG=$(git describe --tags --abbrev=0)" >> $GITHUB_ENV
-
       - name: Extract Docker metadata
         id: meta
         uses: docker/metadata-action@96383f45573cb7f253c731d3b3ab81c87ef81934
         with:
           images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
-          tags: |
-            type=raw,value=${{ env.GIT_TAG }}
-            type=ref,event=tag
-
       - name: Set up Go
         uses: actions/setup-go@v4
         with:
@@ -75,7 +67,7 @@ jobs:
           CXX: x86_64-linux-gnu-g++
           PKG_CONFIG_SYSROOT_DIR: /sysroot/linux/amd64
           PKG_CONFIG_PATH: /sysroot/linux/amd64/usr/lib/pkgconfig:/sysroot/linux/amd64/usr/local/lib/pkgconfig
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
         run: |
           export CGO_ENABLED=${{ env.CGO_ENABLED }}
           export CC=${{ env.CC }}
