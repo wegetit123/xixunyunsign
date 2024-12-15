@@ -2,6 +2,7 @@ name: Release
 
 on:
   workflow_dispatch: # 手动触发
+  tags: [ 'v*.*.*' ]
 
 jobs:
   build-and-release:
