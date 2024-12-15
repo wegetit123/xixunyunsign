@@ -2,8 +2,9 @@ name: Release
 
 on:
   workflow_dispatch: # 手动触发
-  tags: [ 'v*.*.*' ]
-
+  push:
+    tags:
+      - 'v*.*.*' # 当推送符合版本模式的标签时触发
 jobs:
   build-and-release:
     runs-on: ubuntu-latest
