@@ -4,8 +4,6 @@ on:
   push:
     tags:
       - 'v*.*.*' # Matches all version tags
-    tags-ignore:
-      - '*.beta*' # Exclude beta tags
     paths-ignore:
       - '**/*.md' # Ignore markdown file changes
   pull_request:
@@ -21,6 +19,7 @@ env:
 
 jobs:
   build:
+    if: "!contains(github.ref, '.beta')" # 排除包含 .beta 的标签
     runs-on: ubuntu-latest
     permissions:
       contents: read

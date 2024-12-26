@@ -5,13 +5,13 @@ on:
   push:
     tags:
       - 'v*.*.*' # 当推送符合版本模式的标签时触发
-    tags-ignore:
-      - '*.beta*' # 排除包含 .beta 的标签
     paths-ignore:
       - '**/*.md' # 忽略 Markdown 文件的变更
 
 jobs:
+
   build-and-release:
+    if: "!contains(github.ref, '.beta')" # 排除包含 .beta 的标签
     runs-on: ubuntu-latest
     steps:
       # 1. 检出代码，获取完整的 Git 历史记录
