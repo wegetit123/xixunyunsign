@@ -26,6 +26,7 @@ func main() {
 	rootCmd.AddCommand(cmd.QueryCmd)
 	rootCmd.AddCommand(cmd.SignCmd)
 	rootCmd.AddCommand(cmd.SchoolSearchIDCmd)
+	rootCmd.AddCommand(cmd.ExperimentalCmd)
 	//rootCmd.AddCommand(cmd.ScheduleCmd) // 添加 schedule 命令
 	//// 设置优雅关闭信号
 	//stopChan := make(chan os.Signal, 1)
