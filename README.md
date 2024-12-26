@@ -298,7 +298,9 @@ require (
 
 - 开发者邮箱：kuilanmin@gmail.com
 
-一般性问题直接提交issue即可，勿扰邮箱。
+一般性程序功能问题直接提交[issue](https://github.com/theshdowaura/xixunyunsign/issues)即可，勿扰邮箱。
+
+软件使用上的问题打开[discussions](https://github.com/theshdowaura/xixunyunsign/discussions)提问即可
 
 ---
 
