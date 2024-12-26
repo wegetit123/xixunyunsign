@@ -76,14 +76,14 @@ go build -o xixunyunsign.exe
 在执行其他操作之前，您需要先登录：
 
 ```bash
-./xixunyunsign.exe login -a <账号> -p <密码>
+./xixunyunsign.exe login -a <账号> -p <密码> -i <学校id>
 ```
 
 #### 参数说明
 
 - `-a` 或 `--account`：您的登录账号。
 - `-p` 或 `--password`：您的登录密码。
-
+- `-i` :学校id(使用search子命令查询)
 #### 示例
 
 ```bash
@@ -209,6 +209,7 @@ go build -o xixunyunsign.exe
 │   ├── query.go   // 查询签到信息命令
 │   ├── sign.go    // 执行签到命令
 |   └── search_school_id.go //查询签到的学校id
+|   └── shixi-report.go //ai自动编写周报月报,定时提交图片···
 └── utils          // 工具函数
     ├── database.go // 数据库操作
     └── config.go   // 配置文件读写（已废弃）
@@ -349,8 +350,8 @@ go build -o xixunyunsign.exe
 
 - [x] 添加自动签到功能，支持定时任务。
 - [x] 优化错误处理，提供更友好的提示信息。
-- [ ] 增加对其他 API 接口的支持，如请假申请等。
-- [ ] 提供更详细的日志记录，方便调试和问题排查。
+- [x] 提供更详细的日志记录，方便调试和问题排查。
+- [ ] 增加对其他 API 接口的支持，如请假申请,自动定时提交周报月报，提交实习总结等(v1.3.0)。
 
 ---
 
