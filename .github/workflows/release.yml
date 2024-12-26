@@ -5,6 +5,11 @@ on:
   push:
     tags:
       - 'v*.*.*' # 当推送符合版本模式的标签时触发
+    tags-ignore:
+      - '*.beta*' # 排除包含 .beta 的标签
+    paths-ignore:
+      - '**/*.md' # 忽略 Markdown 文件的变更
+
 jobs:
   build-and-release:
     runs-on: ubuntu-latest

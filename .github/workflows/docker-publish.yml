@@ -4,13 +4,13 @@ on:
   push:
     tags:
       - 'v*.*.*' # Matches all version tags
+    tags-ignore:
+      - '*.beta*' # Exclude beta tags
     paths-ignore:
-      - '**/*.md'
-    # Exclude tags like v*.*.*.beta*
-    if: "!startsWith(github.ref, 'refs/tags/v') || !contains(github.ref, '.beta')"
+      - '**/*.md' # Ignore markdown file changes
   pull_request:
-    branches: [ "master" ]
-  workflow_dispatch:
+    branches: ["master"] # Trigger on pull requests to the master branch
+  workflow_dispatch: # Allow manual triggering
 
 
 env:
