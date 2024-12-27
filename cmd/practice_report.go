@@ -63,6 +63,7 @@ var ExperimentalCmd = &cobra.Command{
 }
 
 func init() {
+	ExperimentalCmd.Flags().StringVarP(&account, "account", "a", "", "账号")
 	ExperimentalCmd.Flags().StringVarP(&filePath, "filePath", "f", "", "文件地址")
 	ExperimentalCmd.Flags().StringVarP(&role, "role", "r", "", "工作角色")
 	ExperimentalCmd.Flags().Int8VarP(&month, "month", "M", 1, "第几月（默认为1）")
@@ -72,8 +73,8 @@ func init() {
 	ExperimentalCmd.Flags().StringVarP(&apiKey, "apiKey", "k", "", "apikey(gemini-1.5-flash:generateContent)")
 	ExperimentalCmd.MarkFlagRequired("filePath")
 	ExperimentalCmd.MarkFlagRequired("role")
-	ExperimentalCmd.MarkFlagRequired("month")
-	//ExperimentalCmd.MarkFlagRequired("businessType")
+	//ExperimentalCmd.MarkFlagRequired("month")
+	ExperimentalCmd.MarkFlagRequired("account")
 	ExperimentalCmd.MarkFlagRequired("startDate")
 	ExperimentalCmd.MarkFlagRequired("endData")
 	ExperimentalCmd.MarkFlagRequired("apiKey")
@@ -215,13 +216,13 @@ func GenerateContent(role, apiKey string) (string, error) {
 			{
 				Role: "user",
 				Parts: []ContentPart{
-					{Text: fmt.Sprintf("我是%s。请求生成第%d个月的实习月报内容，并以API形式返回，不带`json`或其他多余信息。", role, month)},
+					{Text: fmt.Sprintf("我是%s。现在要求我回答作为第%d个月的实习报告月报的回复。以替换content里的内容返回给我，以api的形式返回给我，不要回复其他的任何信息，不要```json和\\n", role, month)},
 				},
 			},
 			{
 				Role: "user",
 				Parts: []ContentPart{
-					{Text: `[{"title":"实习工作具体情况及实习任务完成情况","content":"","require":"1","sort":1},{"title":"主要收获及工作成绩","content":"","require":"0","sort":2},{"title":"工作中的问题及需要老师的指导帮助","content":"","require":"0","sort":3}]`},
+					{Text: `[{\"title\":\"实习工作具体情况及实习任务完成情况\",\"content\":\"\",\"require\":\"1\",\"sort\":1},{\"title\":\"主要收获及工作成绩\",\"content\":\"\",\"require\":\"0\",\"sort\":2},{\"title\":\"工作中的问题及需要老师的指导帮助\",\"content\":\"\",\"require\":\"0\",\"sort\":3}]"}`},
 				},
 			},
 		},
@@ -295,7 +296,7 @@ func ReportsMonth(businessType, startDate, endDate, content, attachment string) 
 	formData.Set("start_date", startDate)
 	formData.Set("end_date", endDate)
 	formData.Set("content", content)
-	formData.Set("attachment", fmt.Sprintf("%s,", attachment))
+	formData.Set("attachment", fmt.Sprintf("%s", attachment))
 
 	// Create the request
 	req, err := http.NewRequest("POST", apiURL, bytes.NewBufferString(formData.Encode()))
