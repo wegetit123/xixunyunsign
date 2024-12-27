@@ -23,6 +23,7 @@ Accept: application/json, text/plain, */*
 # 如果查询学校名称为 "学校B"，则返回学校ID "67890"。
 # 如果查询的学校不存在，将没有相关信息返回。
 
+### 手机提交月报
 GET https://api.xixunyun.com/Reports/Setting?business_type=month&token={{$token}}}}&from=app&version=5.1.3&platform=android&entrance_year=0&graduate_year=0&school_id={{$school_id}} HTTP/2
 host: api.xixunyun.com
 accept-encoding: gzip
