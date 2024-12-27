@@ -6,8 +6,10 @@ import (
 	"fmt"
 	"github.com/spf13/cobra"
 	"io"
+	"io/ioutil"
 	"mime/multipart"
 	"net/http"
+	"net/url"
 	"os"
 	"time"
 	"xixuanyunsign/utils"
@@ -36,16 +38,27 @@ type ContentPart struct {
 }
 
 var (
-	filePath string
-	role     string
-	month    int8
+	filePath     string
+	role         string
+	month        int8
+	businessType string
+	startDate    string
+	endDate      string
+	attachment   string
+	apiKey       string
 )
 
 var ExperimentalCmd = &cobra.Command{
 	Use:   "experimental",
 	Short: "实验性命令(自动月报)",
 	Run: func(cmd *cobra.Command, args []string) {
-		UploadImages(filePath)
+		attachment = UploadImages(filePath)
+		content, err := GenerateContent(role, apiKey)
+		if err != nil {
+			fmt.Println(err)
+		}
+		fmt.Println(content) //调试用的
+		ReportsMonth(businessType, startDate, endDate, content, attachment)
 	},
 }
 
@@ -53,9 +66,17 @@ func init() {
 	ExperimentalCmd.Flags().StringVarP(&filePath, "filePath", "f", "", "文件地址")
 	ExperimentalCmd.Flags().StringVarP(&role, "role", "r", "", "工作角色")
 	ExperimentalCmd.Flags().Int8VarP(&month, "month", "M", 1, "第几月（默认为1）")
+	ExperimentalCmd.Flags().StringVarP(&businessType, "businessType", "b", "month", "报告类型(默认month)")
+	ExperimentalCmd.Flags().StringVarP(&startDate, "startDate", "s", "", "开始日期(格式为20xx/xx/xx)")
+	ExperimentalCmd.Flags().StringVarP(&endDate, "endDate", "e", "", "结束日期(格式为20xx/xx/xx)")
+	ExperimentalCmd.Flags().StringVarP(&apiKey, "apiKey", "k", "", "apikey(gemini-1.5-flash:generateContent)")
 	ExperimentalCmd.MarkFlagRequired("filePath")
 	ExperimentalCmd.MarkFlagRequired("role")
-	ExperimentalCmd.MarkFlagRequired("week")
+	ExperimentalCmd.MarkFlagRequired("month")
+	//ExperimentalCmd.MarkFlagRequired("businessType")
+	ExperimentalCmd.MarkFlagRequired("startDate")
+	ExperimentalCmd.MarkFlagRequired("endData")
+	ExperimentalCmd.MarkFlagRequired("apiKey")
 }
 
 // MonthReportUploadSelectFile uploads a report file to the API and returns the URI from the server's response.
@@ -169,16 +190,17 @@ func MonthReportUploadSelectFile(filePath, UserToken string) string {
 	return ""
 }
 
-func UploadImages(filePath string) {
+func UploadImages(filePath string) string {
 	token, _, _, err := utils.GetUser(account)
 	if err != nil || token == "" {
 		if debug {
 			fmt.Printf("获取用户信息失败: %v\n", err)
 		}
 		fmt.Println("未找到该账号的 token，请先登录。")
-		return
+
 	}
-	MonthReportUploadSelectFile(filePath, token)
+	attachment = MonthReportUploadSelectFile(filePath, token)
+	return attachment
 }
 
 // GenerateContent generates internship monthly report content based on the provided role and API key.
@@ -254,4 +276,81 @@ func GenerateContent(role, apiKey string) (string, error) {
 
 	generatedText := responseData.Candidates[0].Content.Parts[0].Text
 	return generatedText, nil
+}
+
+func ReportsMonth(businessType, startDate, endDate, content, attachment string) {
+	token, _, _, err := utils.GetUser(account)
+	if err != nil || token == "" {
+		if debug {
+			fmt.Printf("获取用户信息失败: %v\n", err)
+		}
+		fmt.Println("未找到该账号的 token，请先登录。")
+		return
+	}
+	apiURL := fmt.Sprintf("https://api.xixunyun.com/Reports/StudentOperator?token=%s", token)
+
+	// Create URL-encoded form data
+	formData := url.Values{}
+	formData.Set("business_type", businessType)
+	formData.Set("start_date", startDate)
+	formData.Set("end_date", endDate)
+	formData.Set("content", content)
+	formData.Set("attachment", fmt.Sprintf("%s,", attachment))
+
+	// Create the request
+	req, err := http.NewRequest("POST", apiURL, bytes.NewBufferString(formData.Encode()))
+	if err != nil {
+		fmt.Println("Error creating request:", err)
+		return
+	}
+
+	// Set headers
+	req.Header.Set("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36")
+	req.Header.Set("Accept", "application/json, text/javascript, */*; q=0.01")
+	req.Header.Set("Accept-Encoding", "gzip, deflate, br, zstd")
+	req.Header.Set("sec-ch-ua-platform", "\"Windows\"")
+	req.Header.Set("authorization", token)
+	req.Header.Set("sec-ch-ua", "\"Google Chrome\";v=\"131\", \"Chromium\";v=\"131\", \"Not_A Brand\";v=\"24\"")
+	req.Header.Set("content-type", "application/x-www-form-urlencoded; charset=UTF-8")
+	req.Header.Set("sec-ch-ua-mobile", "?0")
+	req.Header.Set("origin", "https://www.xixunyun.com")
+	req.Header.Set("sec-fetch-site", "same-site")
+	req.Header.Set("sec-fetch-mode", "cors")
+	req.Header.Set("sec-fetch-dest", "empty")
+	req.Header.Set("referer", "https://www.xixunyun.com/")
+	req.Header.Set("accept-language", "zh-CN,zh;q=0.9")
+	req.Header.Set("priority", "u=1, i")
+
+	// Execute the request
+	client := &http.Client{}
+	resp, err := client.Do(req)
+	if err != nil {
+		fmt.Println("Error executing request:", err)
+		return
+	}
+	defer resp.Body.Close()
+
+	// Read the response
+	body, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		fmt.Println("Error reading response body:", err)
+		return
+	}
+
+	// 定义结构体以解析 JSON 中的 code 和 message
+	var responseBody struct {
+		Code    int    `json:"code"`
+		Message string `json:"message"`
+	}
+
+	// 解析 JSON 响应
+	err = json.Unmarshal(body, &responseBody)
+	if err != nil {
+		fmt.Println("Error parsing response body:", err)
+		return
+	}
+
+	// 打印 code 和 message
+	fmt.Printf("Code: %d\n", responseBody.Code)
+	fmt.Printf("Message: %s\n", responseBody.Message)
 }
