@@ -17,7 +17,7 @@ import (
 	"strings"
 
 	"github.com/spf13/cobra"
-	"xixuanyunsign/utils"
+	"xixunyunsign/utils"
 )
 
 var (

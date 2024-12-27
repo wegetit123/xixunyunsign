@@ -3,7 +3,7 @@ package cmd
 import (
 	"fmt"
 	"log"
-	"xixuanyunsign/utils"
+	"xixunyunsign/utils"
 
 	"github.com/spf13/cobra"
 )

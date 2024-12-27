@@ -7,7 +7,7 @@ import (
 	"net/http"
 
 	"github.com/spf13/cobra"
-	"xixuanyunsign/utils"
+	"xixunyunsign/utils"
 )
 
 func init() {

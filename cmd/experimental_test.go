@@ -10,7 +10,7 @@ import (
 
 	"github.com/stretchr/testify/assert"
 
-	"xixuanyunsign/cmd"
+	"xixunyunsign/cmd"
 )
 
 func TestMonthReportUploadSelectFile(t *testing.T) {

@@ -3,8 +3,8 @@ package main
 import (
 	"github.com/spf13/cobra"
 	"log"
-	"xixuanyunsign/cmd"
-	"xixuanyunsign/utils"
+	"xixunyunsign/cmd"
+	"xixunyunsign/utils"
 )
 
 func main() {

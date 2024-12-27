@@ -1,4 +1,4 @@
-module xixuanyunsign
+module xixunyunsign
 
 go 1.22
 
