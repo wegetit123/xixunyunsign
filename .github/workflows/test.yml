@@ -2,7 +2,9 @@ name: Test schedule
 
 on:
   schedule:
-    - cron: 0 22 * * * # 定时触发：每天 UTC 时间22点（UTC+8 上午 6点）
+    - cron: '0 22 * * *'  # UTC时间22点（北京时间早上6点）
+    - cron: '0 4 * * *'   # UTC时间4点（北京时间中午12点）
+    - cron: '0 10 * * *'  # UTC时间10点（北京时间晚上6点）
   workflow_dispatch: # 手动触发
 
 jobs:
